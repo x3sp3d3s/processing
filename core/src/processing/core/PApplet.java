@@ -1925,7 +1925,7 @@ public class PApplet extends Applet
         }
       } else {
         if (platform == MACOSX) e.printStackTrace(System.out);
-        throw new RuntimeException(e.getMessage());
+        throw new RuntimeException(e.getMessage(), e);
       }
     }
   }
@@ -10637,6 +10637,7 @@ public class PApplet extends Applet
           Thread.currentThread().getContextClassLoader().loadClass(name);
         applet = (PApplet) c.newInstance();
       } catch (Exception e) {
+        e.printStackTrace();
         throw new RuntimeException(e);
       }
     }

@@ -773,6 +773,16 @@ public class Runner implements MessageConsumer {
   public void exceptionEvent(ExceptionEvent event) {
     ObjectReference or = event.exception();
     ReferenceType rt = or.referenceType();
+
+    ClassType classtype = (ClassType) or.referenceType();
+    Method method = classtype.concreteMethodByName("printStackTrace", "()V");
+    System.out.printf("method %s\n", method);
+    try {
+      Value value = or.invokeMethod( event.thread(), method,
+        new ArrayList<Value>(), ObjectReference.INVOKE_SINGLE_THREADED);}
+    catch( Exception exception){
+      exception.printStackTrace();}
+
     String exceptionName = rt.name();
     //Field messageField = Throwable.class.getField("detailMessage");
     Field messageField = rt.fieldByName("detailMessage");
@@ -845,6 +855,7 @@ public class Runner implements MessageConsumer {
       System.err.println("to be called recursively (it's calling itself and going in circles),");
       System.err.println("or you're intentionally calling a recursive function too much,");
       System.err.println("and your code should be rewritten in a more efficient manner.");
+      return false;
 
     } else if (exceptionClass.equals("java.lang.UnsupportedClassVersionError")) {
       listener.statusError("UnsupportedClassVersionError: A library is using code compiled with an unsupported version of Java.");
@@ -920,6 +931,7 @@ public class Runner implements MessageConsumer {
       ArrayReference result = (ArrayReference) or.invokeMethod(thread, method, new ArrayList<Value>(), ObjectReference.INVOKE_SINGLE_THREADED);
       // iterate through stack frames and pull filename and line number for each
       for (Value val: result.getValues()) {
+        System.out.println( val);
         ObjectReference ref = (ObjectReference)val;
         method = ((ClassType) ref.referenceType()).concreteMethodByName("getFileName", "()Ljava/lang/String;");
         StringReference strref = (StringReference) ref.invokeMethod(thread, method, new ArrayList<Value>(), ObjectReference.INVOKE_SINGLE_THREADED);
