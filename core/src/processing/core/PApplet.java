@@ -784,6 +784,8 @@ public class PApplet extends Applet
    */
   static public final String ARGS_EDITOR_LOCATION = "--editor-location";
 
+  static public final String ARGS_EXTERNAL = "--external";
+
   /**
    * Location for where to position the applet window on screen.
    * <p>
@@ -791,8 +793,6 @@ public class PApplet extends Applet
    * location, or could be used by other classes to launch at a
    * specific position on-screen.
    */
-  static public final String ARGS_EXTERNAL = "--external";
-
   static public final String ARGS_LOCATION = "--location";
 
   static public final String ARGS_DISPLAY = "--display";
@@ -2369,7 +2369,9 @@ public class PApplet extends Applet
           render();
         } else {
           Graphics screen = getGraphics();
-          screen.drawImage(g.image, 0, 0, width, height, null);
+          if (screen != null) {
+            screen.drawImage(g.image, 0, 0, width, height, null);
+          }
         }
       } else {
         repaint();
@@ -4027,8 +4029,12 @@ public class PApplet extends Applet
     }
   }
 
-
-  void exitActual() {
+  /**
+   * Some subclasses (I'm looking at you, processing.py) might wish to do something
+   * other than actually terminate the JVM. This gives them a chance to do whatever
+   * they have in mind when cleaning up.
+   */
+  protected void exitActual() {
     try {
       System.exit(0);
     } catch (SecurityException e) {
@@ -5271,6 +5277,8 @@ public class PApplet extends Applet
    * @param amt float between 0.0 and 1.0
    * @see PGraphics#curvePoint(float, float, float, float, float)
    * @see PGraphics#bezierPoint(float, float, float, float, float)
+   * @see PVector#lerp(PVector, float)
+   * @see PGraphics#lerpColor(int, int, float)
    */
   static public final float lerp(float start, float stop, float amt) {
     return start + (stop-start) * amt;
@@ -10315,7 +10323,7 @@ public class PApplet extends Applet
                 //revalidate();   // let the layout manager do its work
                 if (revalidateMethod != null) {
                   try {
-                    revalidateMethod.invoke(this);
+                    revalidateMethod.invoke(PApplet.this);
                   } catch (Exception ex) {
                     ex.printStackTrace();
                     revalidateMethod = null;
@@ -15344,6 +15352,7 @@ public class PApplet extends Applet
    * @param amt between 0.0 and 1.0
    * @see PImage#blendColor(int, int, int)
    * @see PGraphics#color(float, float, float, float)
+   * @see PApplet#lerp(float, float, float)
    */
   public int lerpColor(int c1, int c2, float amt) {
     return g.lerpColor(c1, c2, amt);
