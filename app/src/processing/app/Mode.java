@@ -1016,6 +1016,18 @@ public abstract class Mode {
 
 
   /**
+   * @param f File to be checked against this mode's accepted extensions.
+   * @return Whether or not the given file name features an extension supported by this mode.
+   */
+  public boolean canEdit(final File f) {
+    final int dot = f.getName().lastIndexOf('.');
+    if (dot < 0) {
+      return false;
+    }
+    return validExtension(f.getName().substring(dot + 1));
+  }
+  
+  /**
    * Check this extension (no dots, please) against the list of valid
    * extensions.
    */
@@ -1033,6 +1045,18 @@ public abstract class Mode {
    */
   abstract public String getDefaultExtension();
 
+
+  /**
+   * Returns the appropriate file extension to use for auxilliary source files in a sketch.
+   * For example, in a Java-mode sketch, auxilliary files should be name "Foo.java"; in
+   * Python mode, they should be named "foo.py".
+   * 
+   * <p>Modes that do not override this function will get the default behavior of returning the
+   * default extension.
+   */
+  public String getModuleExtension() {
+    return getDefaultExtension();
+  }
 
 
   /**
@@ -1075,4 +1099,9 @@ public abstract class Mode {
 //  public void handleNewReplace() {
 //    base.handleNewReplace();
 //  }
+  
+  @Override
+  public String toString() {
+    return getTitle();
+  }
 }
